@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Add Task Fix</title>
+    
+    <!-- Include the same CSS as the main app -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layouts/grid.css">
+    <link rel="stylesheet" href="css/components/header.css">
+    <link rel="stylesheet" href="css/components/task-form.css">
+    <link rel="stylesheet" href="css/components/task-item.css">
+    <link rel="stylesheet" href="css/components/buttons.css">
+    <link rel="stylesheet" href="css/themes/light.css">
+    
+    <style>
+        .debug-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .debug-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .debug-log {
+            font-family: monospace;
+            font-size: 12px;
+            background: #f5f5f5;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .debug-log .success { color: #4caf50; }
+        .debug-log .error { color: #f44336; }
+        .debug-log .info { color: #2196f3; }
+        
+        .test-section {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <h3>Debug Info</h3>
+        <button id="clear-debug">Clear</button>
+        <div id="debug-logs" class="debug-log"></div>
+        <div id="debug-stats">
+            <p>Tasks in State: <span id="state-count">0</span></p>
+            <p>Tasks in Manager: <span id="manager-count">0</span></p>
+            <p>Tasks in List: <span id="list-count">0</span></p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h1>Add Task Functionality Test</h1>
+        
+        <!-- Task creation form (simplified version) -->
+        <section class="task-form-section" aria-labelledby="task-form-heading">
+            <h2 id="task-form-heading" class="sr-only">Add new task</h2>
+            <form class="task-form" id="task-form" novalidate>
+                <div class="task-form__input-group">
+                    <label for="task-input" class="task-form__label">
+                        What needs to be done?
+                    </label>
+                    <div class="task-form__input-wrapper">
+                        <input type="text" 
+                               id="task-input" 
+                               class="task-form__input"
+                               placeholder="Enter a new task..."
+                               aria-describedby="task-input-help task-input-error"
+                               maxlength="500"
+                               required>
+                        <div class="task-form__input-actions">
+                            <select id="priority-select" 
+                                    class="task-form__priority"
+                                    aria-label="Task priority">
+                                <option value="medium">Medium Priority</option>
+                                <option value="low">Low Priority</option>
+                                <option value="high">High Priority</option>
+                            </select>
+                            <button type="submit" 
+                                    class="btn btn--primary task-form__submit"
+                                    aria-describedby="task-input-help">
+                                <svg class="icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24">
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                </svg>
+                                Add Task
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="task-input-help" class="task-form__help">
+                    Press Enter or click "Add Task" to create a new task
+                </div>
+                
+                <div id="task-input-error" 
+                     class="task-form__error" 
+                     role="alert" 
+                     aria-live="polite">
+                    <!-- Error messages will be inserted here -->
+                </div>
+            </form>
+        </section>
+        
+        <!-- Task list section -->
+        <section class="task-list-section" aria-labelledby="task-list-heading">
+            <div class="task-list-header">
+                <h2 id="task-list-heading" class="task-list-heading">
+                    Your Tasks
+                    <span class="task-count" aria-label="Total tasks">
+                        (<span data-count="total">0</span> tasks)
+                    </span>
+                </h2>
+            </div>
+            
+            <!-- Task list container -->
+            <div class="task-list-container">
+                <ul class="task-list" 
+                    id="task-list" 
+                    role="list" 
+                    aria-live="polite"
+                    aria-label="Task list">
+                    <!-- Tasks will be dynamically inserted here -->
+                </ul>
+                
+                <!-- Empty state -->
+                <div class="empty-state" id="empty-state" aria-hidden="true">
+                    <div class="empty-state__icon">
+                        <svg class="icon" aria-hidden="true" width="48" height="48" viewBox="0 0 24 24">
+                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="empty-state__title">No tasks yet</h3>
+                    <p class="empty-state__message">
+                        Add your first task above to get started!
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Test buttons -->
+        <div style="margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <h3>Test Controls</h3>
+            <button id="test-add-task" class="btn btn--secondary">Add Test Task</button>
+            <button id="clear-all-tasks" class="btn btn--secondary">Clear All Tasks</button>
+            <button id="refresh-display" class="btn btn--secondary">Force Refresh</button>
+            <button id="check-state" class="btn btn--secondary">Check State</button>
+        </div>
+    </div>
+
+    <!-- Screen reader announcements -->
+    <div class="sr-announcements" aria-live="polite" aria-atomic="true" id="sr-announcements">
+        <!-- Screen reader announcements will be inserted here -->
+    </div>
+
+    <script type="module">
+        let app, taskManager, stateManager, taskForm, taskList;
+        const debugLogs = document.getElementById('debug-logs');
+        
+        function debugLog(message, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.textContent = `[${time}] ${message}`;
+            debugLogs.appendChild(logEntry);
+            debugLogs.scrollTop = debugLogs.scrollHeight;
+            console.log(`[DEBUG] ${message}`);
+        }
+        
+        function updateStats() {
+            try {
+                const stateCount = stateManager ? stateManager.getAllTasks().length : 0;
+                const managerCount = taskManager ? taskManager.getAllTasks().length : 0;
+                const listCount = taskList ? taskList.getTaskCount() : 0;
+                
+                document.getElementById('state-count').textContent = stateCount;
+                document.getElementById('manager-count').textContent = managerCount;
+                document.getElementById('list-count').textContent = listCount;
+            } catch (error) {
+                debugLog(`Error updating stats: ${error.message}`, 'error');
+            }
+        }
+        
+        async function initializeApp() {
+            try {
+                debugLog('Starting initialization...', 'info');
+                
+                // Import the App class
+                const { App } = await import('./js/app.js');
+                
+                // Create and initialize the app
+                app = new App();
+                await app.init();
+                
+                // Get references to the components
+                taskManager = app.taskManager;
+                stateManager = app.state;
+                taskForm = app.getComponent('taskForm');
+                taskList = app.getComponent('taskList');
+                
+                debugLog('✅ App initialized successfully', 'success');
+                debugLog(`TaskManager ready: ${taskManager?.isReady()}`, 'info');
+                debugLog(`TaskForm available: ${!!taskForm}`, 'info');
+                debugLog(`TaskList available: ${!!taskList}`, 'info');
+                
+                // Set up additional event listeners for debugging
+                document.addEventListener('task:created', (event) => {
+                    debugLog(`🎉 TASK_CREATED event received: ${event.detail.task.title}`, 'success');
+                    updateStats();
+                });
+                
+                document.addEventListener('state:changed', (event) => {
+                    debugLog(`📊 State changed: ${event.detail.source}`, 'info');
+                    updateStats();
+                });
+                
+                updateStats();
+                
+            } catch (error) {
+                debugLog(`❌ Initialization error: ${error.message}`, 'error');
+                console.error('Initialization error:', error);
+            }
+        }
+        
+        // Test functions
+        async function testAddTask() {
+            try {
+                const title = `Test task ${Date.now()}`;
+                debugLog(`🔄 Creating test task: "${title}"`, 'info');
+                
+                const task = await taskManager.createTask({
+                    title: title,
+                    priority: 'medium'
+                });
+                
+                debugLog(`✅ Test task created: ${task.id}`, 'success');
+                updateStats();
+                
+            } catch (error) {
+                debugLog(`❌ Error creating test task: ${error.message}`, 'error');
+            }
+        }
+        
+        async function clearAllTasks() {
+            try {
+                const tasks = stateManager.getAllTasks();
+                debugLog(`🔄 Clearing ${tasks.length} tasks`, 'info');
+                
+                for (const task of tasks) {
+                    await taskManager.deleteTask(task.id);
+                }
+                
+                debugLog(`✅ All tasks cleared`, 'success');
+                updateStats();
+                
+            } catch (error) {
+                debugLog(`❌ Error clearing tasks: ${error.message}`, 'error');
+            }
+        }
+        
+        function forceRefresh() {
+            try {
+                debugLog(`🔄 Force refreshing TaskList`, 'info');
+                if (taskList && taskList.forceRefresh) {
+                    taskList.forceRefresh();
+                    debugLog(`✅ TaskList refreshed`, 'success');
+                } else {
+                    debugLog(`❌ TaskList forceRefresh not available`, 'error');
+                }
+                updateStats();
+            } catch (error) {
+                debugLog(`❌ Error force refreshing: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkState() {
+            try {
+                const state = stateManager.getState();
+                debugLog(`📊 State check:`, 'info');
+                debugLog(`  - Tasks: ${state.tasks.length}`, 'info');
+                debugLog(`  - Filters: ${JSON.stringify(state.filters)}`, 'info');
+                
+                const filtered = stateManager.getFilteredTasks();
+                debugLog(`  - Filtered: ${filtered.length}`, 'info');
+                
+                updateStats();
+            } catch (error) {
+                debugLog(`❌ Error checking state: ${error.message}`, 'error');
+            }
+        }
+        
+        // Set up event listeners
+        document.getElementById('clear-debug').addEventListener('click', () => {
+            debugLogs.innerHTML = '';
+        });
+        
+        document.getElementById('test-add-task').addEventListener('click', testAddTask);
+        document.getElementById('clear-all-tasks').addEventListener('click', clearAllTasks);
+        document.getElementById('refresh-display').addEventListener('click', forceRefresh);
+        document.getElementById('check-state').addEventListener('click', checkState);
+        
+        // Global error handlers
+        window.addEventListener('error', (event) => {
+            debugLog(`❌ Global error: ${event.error?.message || event.message}`, 'error');
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            debugLog(`❌ Unhandled promise rejection: ${event.reason?.message || event.reason}`, 'error');
+        });
+        
+        // Initialize the app
+        initializeApp();
+    </script>
+</body>
+</html>

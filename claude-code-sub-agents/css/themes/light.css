@@ -1,0 +1,276 @@
+/* Light Theme - Default Theme */
+
+[data-theme="light"] {
+  /* === PRIMARY COLORS === */
+  --color-primary: #007bff;
+  --color-primary-dark: #0056b3;
+  --color-primary-light: #66b3ff;
+  --color-primary-lighter: #e3f2fd;
+  --color-primary-rgb: 0, 123, 255;
+  
+  /* === SECONDARY COLORS === */
+  --color-secondary: #6c757d;
+  --color-secondary-dark: #495057;
+  --color-secondary-light: #adb5bd;
+  
+  /* === SEMANTIC COLORS === */
+  --color-success: #28a745;
+  --color-success-dark: #1e7e34;
+  --color-success-light: #d4edda;
+  
+  --color-danger: #dc3545;
+  --color-danger-dark: #c82333;
+  --color-danger-light: #f8d7da;
+  
+  --color-warning: #ffc107;
+  --color-warning-dark: #e0a800;
+  --color-warning-light: #fff3cd;
+  
+  --color-info: #17a2b8;
+  --color-info-dark: #138496;
+  --color-info-light: #d1ecf1;
+  
+  /* === BACKGROUND COLORS === */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-quaternary: #dee2e6;
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  
+  /* === TEXT COLORS === */
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  --text-inverse: #ffffff;
+  --text-link: var(--color-primary);
+  --text-link-hover: var(--color-primary-dark);
+  
+  /* === BORDER COLORS === */
+  --border-color: #dee2e6;
+  --border-color-light: #f8f9fa;
+  --border-color-dark: #adb5bd;
+  --border-color-focus: var(--color-primary);
+  
+  /* === COMPONENT SPECIFIC === */
+  --header-bg: var(--bg-primary);
+  --header-border: var(--border-color);
+  
+  --sidebar-bg: var(--bg-secondary);
+  --sidebar-border: var(--border-color);
+  
+  --form-element-border: var(--border-color);
+  --form-element-focus-border: var(--color-primary);
+  --form-element-focus-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  
+  --task-item-border: var(--border-color);
+  --task-item-hover-shadow: var(--shadow-sm);
+  
+  /* === PRIORITY COLORS === */
+  --priority-high-color: var(--color-danger);
+  --priority-medium-color: var(--color-warning);
+  --priority-low-color: var(--color-info);
+}
+
+/* === LIGHT THEME SPECIFIC STYLES === */
+
+[data-theme="light"] body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .app__header {
+  background-color: var(--header-bg);
+  border-bottom-color: var(--header-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .app__sidebar {
+  background-color: var(--sidebar-bg);
+  border-right-color: var(--sidebar-border);
+}
+
+[data-theme="light"] .task-form {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .task-item {
+  background-color: var(--bg-primary);
+  border-color: var(--task-item-border);
+}
+
+[data-theme="light"] .task-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .task-item--completed {
+  background-color: var(--bg-secondary);
+  opacity: 0.7;
+}
+
+[data-theme="light"] .modal__container {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .modal__header,
+[data-theme="light"] .modal__footer {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+[data-theme="light"] .notification {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* === LIGHT THEME FORM ELEMENTS === */
+
+[data-theme="light"] .task-form__input,
+[data-theme="light"] .task-form__priority,
+[data-theme="light"] select,
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="search"],
+[data-theme="light"] textarea {
+  background-color: var(--bg-primary);
+  border-color: var(--form-element-border);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .task-form__input:focus,
+[data-theme="light"] .task-form__priority:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] input[type="text"]:focus,
+[data-theme="light"] input[type="search"]:focus,
+[data-theme="light"] textarea:focus {
+  border-color: var(--form-element-focus-border);
+  box-shadow: var(--form-element-focus-shadow);
+}
+
+[data-theme="light"] ::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+/* === LIGHT THEME BUTTONS === */
+
+[data-theme="light"] .btn--secondary {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .btn--secondary:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color-dark);
+}
+
+[data-theme="light"] .btn--filter {
+  background-color: transparent;
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .btn--filter:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color-dark);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .btn--filter-active {
+  background-color: var(--color-primary-lighter);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+/* === LIGHT THEME SCROLLBARS === */
+
+[data-theme="light"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: var(--border-color-dark);
+  border-radius: 4px;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* === LIGHT THEME SELECTION === */
+
+[data-theme="light"] ::selection {
+  background-color: var(--color-primary-lighter);
+  color: var(--color-primary-dark);
+}
+
+[data-theme="light"] ::-moz-selection {
+  background-color: var(--color-primary-lighter);
+  color: var(--color-primary-dark);
+}
+
+/* === LIGHT THEME FOCUS STYLES === */
+
+[data-theme="light"] :focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+[data-theme="light"] .btn:focus {
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* === LIGHT THEME SHADOWS === */
+
+[data-theme="light"] .shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .shadow-md {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .shadow-lg {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .shadow-xl {
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* === LIGHT THEME PRINT OPTIMIZATIONS === */
+
+@media print {
+  [data-theme="light"] {
+    --bg-primary: white;
+    --bg-secondary: white;
+    --bg-tertiary: white;
+    --text-primary: black;
+    --text-secondary: #333;
+    --border-color: #ccc;
+  }
+  
+  [data-theme="light"] * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+  
+  [data-theme="light"] .task-item {
+    border: 1px solid black !important;
+  }
+  
+  [data-theme="light"] .btn {
+    border: 1px solid black !important;
+  }
+}

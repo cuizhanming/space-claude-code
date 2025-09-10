@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Add Task Issue</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .error { background: #ffebee; border-left: 4px solid #f44336; }
+        .success { background: #e8f5e8; border-left: 4px solid #4caf50; }
+        .info { background: #e3f2fd; border-left: 4px solid #2196f3; }
+        .form { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 4px; }
+        input, select, button { margin: 5px; padding: 8px; }
+        #debug-output { max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>Debug Add Task Functionality</h1>
+    
+    <div class="form">
+        <h3>Test Task Creation</h3>
+        <input type="text" id="debug-task-input" placeholder="Enter task title" value="Test task from debug">
+        <select id="debug-priority-select">
+            <option value="medium">Medium Priority</option>
+            <option value="low">Low Priority</option>
+            <option value="high">High Priority</option>
+        </select>
+        <button id="debug-create-task">Create Task</button>
+        <button id="debug-clear-logs">Clear Logs</button>
+    </div>
+    
+    <div id="debug-output"></div>
+
+    <script type="module">
+        const output = document.getElementById('debug-output');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function clearLogs() {
+            output.innerHTML = '';
+        }
+        
+        document.getElementById('debug-clear-logs').addEventListener('click', clearLogs);
+        
+        // Test imports
+        log('Starting debug session...', 'info');
+        
+        try {
+            // Import modules
+            const { getTaskManager } = await import('./js/modules/taskManager.js');
+            const { getStateManager } = await import('./js/modules/stateManager.js');
+            const { validateTaskTitle, validateTaskPriority } = await import('./js/utils/validation.js');
+            
+            log('✅ All modules imported successfully', 'success');
+            
+            // Get instances
+            const taskManager = getTaskManager();
+            const stateManager = getStateManager();
+            
+            log('✅ Manager instances created', 'success');
+            
+            // Wait for task manager to be ready
+            let attempts = 0;
+            const maxAttempts = 50;
+            
+            const waitForReady = () => {
+                if (taskManager.isReady()) {
+                    log('✅ Task manager is ready', 'success');
+                    setupTaskCreation();
+                } else if (attempts < maxAttempts) {
+                    attempts++;
+                    log(`⏳ Waiting for task manager... (${attempts}/${maxAttempts})`, 'info');
+                    setTimeout(waitForReady, 100);
+                } else {
+                    log('❌ Task manager failed to initialize within timeout', 'error');
+                }
+            };
+            
+            waitForReady();
+            
+            function setupTaskCreation() {
+                document.getElementById('debug-create-task').addEventListener('click', async () => {
+                    try {
+                        const title = document.getElementById('debug-task-input').value;
+                        const priority = document.getElementById('debug-priority-select').value;
+                        
+                        log(`🔄 Creating task: "${title}" with priority: ${priority}`, 'info');
+                        
+                        // Validate input
+                        const titleValidation = validateTaskTitle(title);
+                        const priorityValidation = validateTaskPriority(priority);
+                        
+                        if (!titleValidation.isValid) {
+                            log(`❌ Title validation failed: ${titleValidation.errors.join(', ')}`, 'error');
+                            return;
+                        }
+                        
+                        if (!priorityValidation.isValid) {
+                            log(`❌ Priority validation failed: ${priorityValidation.errors.join(', ')}`, 'error');
+                            return;
+                        }
+                        
+                        log('✅ Validation passed', 'success');
+                        
+                        // Create task
+                        const taskData = {
+                            title: title,
+                            priority: priority
+                        };
+                        
+                        const task = await taskManager.createTask(taskData);
+                        log(`✅ Task created successfully: ID=${task.id}, Title="${task.title}"`, 'success');
+                        
+                        // Get current tasks count
+                        const stats = taskManager.getTaskStatistics();
+                        log(`📊 Total tasks: ${stats.total}, Active: ${stats.active}, Completed: ${stats.completed}`, 'info');
+                        
+                        // Check state
+                        const state = stateManager.getState();
+                        log(`📄 State has ${state.tasks.length} tasks`, 'info');
+                        
+                    } catch (error) {
+                        log(`❌ Error creating task: ${error.message}`, 'error');
+                        console.error('Task creation error:', error);
+                    }
+                });
+            }
+            
+        } catch (error) {
+            log(`❌ Import error: ${error.message}`, 'error');
+            console.error('Import error:', error);
+        }
+        
+        // Global error handlers
+        window.addEventListener('error', (event) => {
+            log(`❌ Global error: ${event.error?.message || event.message}`, 'error');
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            log(`❌ Unhandled promise rejection: ${event.reason?.message || event.reason}`, 'error');
+        });
+    </script>
+</body>
+</html>

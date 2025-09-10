@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A simple and efficient task management application built with collaborative sub-agents">
+    <meta name="theme-color" content="#007bff">
+    
+    <!-- Security headers -->
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; 
+                   script-src 'self' 'unsafe-inline'; 
+                   style-src 'self' 'unsafe-inline'; 
+                   img-src 'self' data:; 
+                   font-src 'self';">
+    
+    <title>Todo List MVP</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layouts/grid.css">
+    <link rel="stylesheet" href="css/layouts/responsive.css">
+    <link rel="stylesheet" href="css/components/header.css">
+    <link rel="stylesheet" href="css/components/task-form.css">
+    <link rel="stylesheet" href="css/components/task-item.css">
+    <link rel="stylesheet" href="css/components/buttons.css">
+    <link rel="stylesheet" href="css/components/modal.css">
+    <link rel="stylesheet" href="css/components/notification.css">
+    <link rel="stylesheet" href="css/themes/light.css">
+    <link rel="stylesheet" href="css/themes/dark.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+</head>
+<body data-theme="light">
+    <!-- Skip navigation link for screen readers -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Main application container -->
+    <div class="app" id="app">
+        <!-- Header section -->
+        <header class="app__header" role="banner">
+            <div class="header">
+                <div class="header__brand">
+                    <h1 class="header__title">Todo List</h1>
+                    <span class="header__subtitle">MVP</span>
+                </div>
+                
+                <nav class="header__nav" role="navigation" aria-label="Main navigation">
+                    <button type="button" 
+                            class="btn btn--icon header__theme-toggle" 
+                            aria-label="Toggle dark mode"
+                            data-action="toggle-theme">
+                        <svg class="icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
+                            <path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6c3.31 0 6 2.69 6 6s-2.69 6-6 6z"/>
+                        </svg>
+                        <span class="sr-only">Toggle dark mode</span>
+                    </button>
+                    
+                    <button type="button" 
+                            class="btn btn--icon header__menu-toggle" 
+                            aria-label="Toggle sidebar"
+                            aria-expanded="false"
+                            aria-controls="sidebar"
+                            data-action="toggle-sidebar">
+                        <svg class="icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
+                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                        </svg>
+                        <span class="sr-only">Toggle sidebar</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+        
+        <!-- Sidebar for filters and search -->
+        <aside class="app__sidebar" id="sidebar" role="complementary" aria-label="Filters and search">
+            <div class="sidebar">
+                <h2 class="sidebar__title">Filters</h2>
+                
+                <!-- Search section -->
+                <section class="sidebar__section" aria-labelledby="search-heading">
+                    <h3 id="search-heading" class="sidebar__section-title">Search</h3>
+                    <div class="search-bar">
+                        <label for="search-input" class="sr-only">Search tasks</label>
+                        <input type="search" 
+                               id="search-input" 
+                               class="search-bar__input"
+                               placeholder="Search tasks..."
+                               aria-describedby="search-help">
+                        <button type="button" 
+                                class="search-bar__clear btn btn--icon"
+                                aria-label="Clear search"
+                                data-action="clear-search">
+                            <svg class="icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        </button>
+                        <div id="search-help" class="sr-only">
+                            Search will filter tasks as you type
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Status filter section -->
+                <section class="sidebar__section" aria-labelledby="status-filter-heading">
+                    <h3 id="status-filter-heading" class="sidebar__section-title">Status</h3>
+                    <fieldset class="filter-group">
+                        <legend class="sr-only">Filter tasks by status</legend>
+                        <div class="filter-buttons" role="group" aria-labelledby="status-filter-heading">
+                            <button type="button" 
+                                    class="btn btn--filter btn--filter-active" 
+                                    data-filter="all"
+                                    aria-pressed="true">
+                                All
+                                <span class="filter-count" data-count="all">0</span>
+                            </button>
+                            <button type="button" 
+                                    class="btn btn--filter" 
+                                    data-filter="active"
+                                    aria-pressed="false">
+                                Active
+                                <span class="filter-count" data-count="active">0</span>
+                            </button>
+                            <button type="button" 
+                                    class="btn btn--filter" 
+                                    data-filter="completed"
+                                    aria-pressed="false">
+                                Completed
+                                <span class="filter-count" data-count="completed">0</span>
+                            </button>
+                        </div>
+                    </fieldset>
+                </section>
+                
+                <!-- Priority filter section -->
+                <section class="sidebar__section" aria-labelledby="priority-filter-heading">
+                    <h3 id="priority-filter-heading" class="sidebar__section-title">Priority</h3>
+                    <fieldset class="filter-group">
+                        <legend class="sr-only">Filter tasks by priority</legend>
+                        <div class="filter-buttons" role="group" aria-labelledby="priority-filter-heading">
+                            <button type="button" 
+                                    class="btn btn--filter btn--filter-active" 
+                                    data-filter="all-priority"
+                                    aria-pressed="true">
+                                All
+                            </button>
+                            <button type="button" 
+                                    class="btn btn--filter" 
+                                    data-filter="high"
+                                    aria-pressed="false">
+                                High
+                            </button>
+                            <button type="button" 
+                                    class="btn btn--filter" 
+                                    data-filter="medium"
+                                    aria-pressed="false">
+                                Medium
+                            </button>
+                            <button type="button" 
+                                    class="btn btn--filter" 
+                                    data-filter="low"
+                                    aria-pressed="false">
+                                Low
+                            </button>
+                        </div>
+                    </fieldset>
+                </section>
+                
+                <!-- Clear filters button -->
+                <button type="button" 
+                        class="btn btn--secondary sidebar__clear-filters"
+                        data-action="clear-filters">
+                    Clear All Filters
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main content area -->
+        <main class="app__main" id="main-content" role="main">
+            <div class="main-content">
+                <!-- Task creation form -->
+                <section class="task-form-section" aria-labelledby="task-form-heading">
+                    <h2 id="task-form-heading" class="sr-only">Add new task</h2>
+                    <form class="task-form" id="task-form" novalidate>
+                        <div class="task-form__input-group">
+                            <label for="task-input" class="task-form__label">
+                                What needs to be done?
+                            </label>
+                            <div class="task-form__input-wrapper">
+                                <input type="text" 
+                                       id="task-input" 
+                                       class="task-form__input"
+                                       placeholder="Enter a new task..."
+                                       aria-describedby="task-input-help task-input-error"
+                                       maxlength="500"
+                                       required>
+                                <div class="task-form__input-actions">
+                                    <select id="priority-select" 
+                                            class="task-form__priority"
+                                            aria-label="Task priority">
+                                        <option value="medium">Medium Priority</option>
+                                        <option value="low">Low Priority</option>
+                                        <option value="high">High Priority</option>
+                                    </select>
+                                    <button type="submit" 
+                                            class="btn btn--primary task-form__submit"
+                                            aria-describedby="task-input-help">
+                                        <svg class="icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24">
+                                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                        </svg>
+                                        Add Task
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="task-input-help" class="task-form__help">
+                            Press Enter or click "Add Task" to create a new task
+                        </div>
+                        
+                        <div id="task-input-error" 
+                             class="task-form__error" 
+                             role="alert" 
+                             aria-live="polite">
+                            <!-- Error messages will be inserted here -->
+                        </div>
+                    </form>
+                </section>
+                
+                <!-- Task list section -->
+                <section class="task-list-section" aria-labelledby="task-list-heading">
+                    <div class="task-list-header">
+                        <h2 id="task-list-heading" class="task-list-heading">
+                            Your Tasks
+                            <span class="task-count" aria-label="Total tasks">
+                                (<span data-count="total">0</span> tasks)
+                            </span>
+                        </h2>
+                        
+                        <div class="task-list-actions">
+                            <button type="button" 
+                                    class="btn btn--secondary"
+                                    data-action="clear-completed"
+                                    aria-describedby="clear-completed-help">
+                                Clear Completed
+                            </button>
+                            <div id="clear-completed-help" class="sr-only">
+                                Remove all completed tasks from the list
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Task list container -->
+                    <div class="task-list-container">
+                        <ul class="task-list" 
+                            id="task-list" 
+                            role="list" 
+                            aria-live="polite"
+                            aria-label="Task list">
+                            <!-- Tasks will be dynamically inserted here -->
+                        </ul>
+                        
+                        <!-- Empty state -->
+                        <div class="empty-state" id="empty-state" aria-hidden="true">
+                            <div class="empty-state__icon">
+                                <svg class="icon" aria-hidden="true" width="48" height="48" viewBox="0 0 24 24">
+                                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                                </svg>
+                            </div>
+                            <h3 class="empty-state__title">No tasks yet</h3>
+                            <p class="empty-state__message">
+                                Add your first task above to get started!
+                            </p>
+                        </div>
+                        
+                        <!-- No results state for search/filters -->
+                        <div class="no-results-state" id="no-results-state" aria-hidden="true">
+                            <div class="no-results-state__icon">
+                                <svg class="icon" aria-hidden="true" width="48" height="48" viewBox="0 0 24 24">
+                                    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                </svg>
+                            </div>
+                            <h3 class="no-results-state__title">No tasks found</h3>
+                            <p class="no-results-state__message">
+                                Try adjusting your search or filters
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="app__footer" role="contentinfo">
+            <div class="footer">
+                <p class="footer__text">
+                    Built with <span aria-label="love">❤️</span> using Claude Code Sub-Agents
+                </p>
+                <div class="footer__links">
+                    <button type="button" 
+                            class="btn btn--link"
+                            data-action="export-tasks"
+                            aria-describedby="export-help">
+                        Export Tasks
+                    </button>
+                    <div id="export-help" class="sr-only">
+                        Download your tasks as a JSON file
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Modal container -->
+    <div class="modal" id="modal" role="dialog" aria-hidden="true" aria-labelledby="modal-title" aria-describedby="modal-description">
+        <div class="modal__backdrop" data-action="close-modal"></div>
+        <div class="modal__container">
+            <div class="modal__header">
+                <h2 class="modal__title" id="modal-title">
+                    <!-- Modal title will be inserted here -->
+                </h2>
+                <button type="button" 
+                        class="btn btn--icon modal__close"
+                        aria-label="Close modal"
+                        data-action="close-modal">
+                    <svg class="icon" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal__body" id="modal-description">
+                <!-- Modal content will be inserted here -->
+            </div>
+            <div class="modal__footer">
+                <!-- Modal actions will be inserted here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification container -->
+    <div class="notification-container" aria-live="polite" aria-label="Notifications">
+        <!-- Notifications will be dynamically inserted here -->
+    </div>
+    
+    <!-- Screen reader announcements -->
+    <div class="sr-announcements" aria-live="polite" aria-atomic="true" id="sr-announcements">
+        <!-- Screen reader announcements will be inserted here -->
+    </div>
+    
+    <!-- JavaScript -->
+    <script type="module" src="js/constants/events.js"></script>
+    <script type="module" src="js/constants/selectors.js"></script>
+    <script type="module" src="js/utils/helpers.js"></script>
+    <script type="module" src="js/utils/validation.js"></script>
+    <script type="module" src="js/utils/dateUtils.js"></script>
+    <script type="module" src="js/modules/stateManager.js"></script>
+    <script type="module" src="js/modules/storage.js"></script>
+    <script type="module" src="js/modules/taskManager.js"></script>
+    <script type="module" src="js/components/TaskForm.js"></script>
+    <script type="module" src="js/components/TaskItem.js"></script>
+    <script type="module" src="js/components/TaskList.js"></script>
+    <script type="module" src="js/components/Search.js"></script>
+    <script type="module" src="js/components/Filter.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

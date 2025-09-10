@@ -1,0 +1,277 @@
+/* CSS Custom Properties - Design Tokens */
+
+:root {
+  /* === COLORS === */
+  
+  /* Primary colors */
+  --color-primary: #007bff;
+  --color-primary-dark: #0056b3;
+  --color-primary-light: #66b3ff;
+  --color-primary-lighter: #e3f2fd;
+  
+  /* Secondary colors */
+  --color-secondary: #6c757d;
+  --color-secondary-dark: #495057;
+  --color-secondary-light: #adb5bd;
+  
+  /* Semantic colors */
+  --color-success: #28a745;
+  --color-success-dark: #1e7e34;
+  --color-success-light: #d4edda;
+  
+  --color-danger: #dc3545;
+  --color-danger-dark: #c82333;
+  --color-danger-light: #f8d7da;
+  
+  --color-warning: #ffc107;
+  --color-warning-dark: #e0a800;
+  --color-warning-light: #fff3cd;
+  
+  --color-info: #17a2b8;
+  --color-info-dark: #138496;
+  --color-info-light: #d1ecf1;
+  
+  /* Background colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-quaternary: #dee2e6;
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  
+  /* Text colors */
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  --text-inverse: #ffffff;
+  --text-link: var(--color-primary);
+  --text-link-hover: var(--color-primary-dark);
+  
+  /* Border colors */
+  --border-color: #dee2e6;
+  --border-color-light: #f8f9fa;
+  --border-color-dark: #adb5bd;
+  --border-color-focus: var(--color-primary);
+  
+  /* === SPACING === */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  --spacing-2xl: 3rem;      /* 48px */
+  --spacing-3xl: 4rem;      /* 64px */
+  
+  /* === TYPOGRAPHY === */
+  --font-family-base: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-monospace: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  
+  /* Font sizes */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  
+  /* Font weights */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Line heights */
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* === BORDERS === */
+  --border-width-thin: 1px;
+  --border-width-thick: 2px;
+  --border-width-thicker: 4px;
+  
+  /* Border radius */
+  --border-radius-none: 0;
+  --border-radius-sm: 0.125rem;  /* 2px */
+  --border-radius-md: 0.25rem;   /* 4px */
+  --border-radius-lg: 0.5rem;    /* 8px */
+  --border-radius-xl: 0.75rem;   /* 12px */
+  --border-radius-full: 9999px;
+  
+  /* === SHADOWS === */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  
+  /* === TRANSITIONS === */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-base: 0.3s ease-in-out;
+  --transition-slow: 0.5s ease-in-out;
+  
+  /* Transition properties */
+  --transition-all: all var(--transition-fast);
+  --transition-colors: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+  --transition-transform: transform var(--transition-fast);
+  --transition-opacity: opacity var(--transition-fast);
+  
+  /* === Z-INDEX SCALE === */
+  --z-index-behind: -1;
+  --z-index-auto: auto;
+  --z-index-base: 0;
+  --z-index-docked: 10;
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-banner: 1030;
+  --z-index-overlay: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-skiplink: 1070;
+  --z-index-notification: 1080;
+  --z-index-tooltip: 1090;
+  
+  /* === LAYOUT === */
+  /* Container max widths */
+  --container-sm: 540px;
+  --container-md: 720px;
+  --container-lg: 960px;
+  --container-xl: 1140px;
+  --container-2xl: 1320px;
+  
+  /* Breakpoints */
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-2xl: 1400px;
+  
+  /* Grid */
+  --grid-columns: 12;
+  --grid-gap: var(--spacing-md);
+  
+  /* === COMPONENT-SPECIFIC === */
+  
+  /* Header */
+  --header-height: 64px;
+  --header-bg: var(--bg-primary);
+  --header-border: var(--border-color);
+  
+  /* Sidebar */
+  --sidebar-width: 280px;
+  --sidebar-width-collapsed: 60px;
+  --sidebar-bg: var(--bg-secondary);
+  --sidebar-border: var(--border-color);
+  
+  /* Forms */
+  --form-element-height: 44px;
+  --form-element-padding: var(--spacing-sm) var(--spacing-md);
+  --form-element-border: var(--border-color);
+  --form-element-border-radius: var(--border-radius-md);
+  --form-element-focus-border: var(--color-primary);
+  --form-element-focus-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  
+  /* Buttons */
+  --btn-height: 44px;
+  --btn-padding: var(--spacing-sm) var(--spacing-lg);
+  --btn-border-radius: var(--border-radius-md);
+  --btn-font-weight: var(--font-weight-medium);
+  
+  /* Cards */
+  --card-padding: var(--spacing-lg);
+  --card-border-radius: var(--border-radius-lg);
+  --card-shadow: var(--shadow-sm);
+  --card-border: var(--border-color);
+  
+  /* Modal */
+  --modal-max-width: 500px;
+  --modal-padding: var(--spacing-lg);
+  --modal-border-radius: var(--border-radius-lg);
+  --modal-shadow: var(--shadow-2xl);
+  
+  /* Notification */
+  --notification-width: 400px;
+  --notification-padding: var(--spacing-md);
+  --notification-border-radius: var(--border-radius-md);
+  --notification-shadow: var(--shadow-lg);
+  
+  /* Task item */
+  --task-item-padding: var(--spacing-md);
+  --task-item-border-radius: var(--border-radius-md);
+  --task-item-border: var(--border-color);
+  --task-item-hover-shadow: var(--shadow-sm);
+  
+  /* Priority indicators */
+  --priority-high-color: var(--color-danger);
+  --priority-medium-color: var(--color-warning);
+  --priority-low-color: var(--color-info);
+  
+  /* === ANIMATION === */
+  --animation-slide-in-up: slideInUp 0.3s ease-out;
+  --animation-slide-in-down: slideInDown 0.3s ease-out;
+  --animation-fade-in: fadeIn 0.3s ease-out;
+  --animation-scale-in: scaleIn 0.2s ease-out;
+  --animation-bounce: bounce 0.6s ease-out;
+}
+
+/* === RESPONSIVE ADJUSTMENTS === */
+
+/* Tablet adjustments */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 240px;
+    --spacing-md: 0.875rem;
+    --spacing-lg: 1.25rem;
+    --font-size-base: 0.9375rem;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+  :root {
+    --sidebar-width: 100%;
+    --header-height: 56px;
+    --spacing-sm: 0.375rem;
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1rem;
+    --font-size-base: 0.875rem;
+    --btn-height: 40px;
+    --form-element-height: 40px;
+    --notification-width: calc(100vw - 2rem);
+  }
+}
+
+/* === CUSTOM MEDIA QUERIES === */
+@custom-media --sm (min-width: 576px);
+@custom-media --md (min-width: 768px);
+@custom-media --lg (min-width: 992px);
+@custom-media --xl (min-width: 1200px);
+@custom-media --2xl (min-width: 1400px);
+
+/* === HIGH CONTRAST MODE === */
+@media (prefers-contrast: high) {
+  :root {
+    --border-width-thin: 2px;
+    --border-width-thick: 3px;
+    --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    --form-element-focus-shadow: 0 0 0 4px rgba(0, 123, 255, 0.3);
+  }
+}
+
+/* === PRINT STYLES === */
+@media print {
+  :root {
+    --bg-primary: white;
+    --bg-secondary: white;
+    --text-primary: black;
+    --text-secondary: #333;
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+  }
+}

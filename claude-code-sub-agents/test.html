@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .error { color: red; }
+        .success { color: green; }
+        #testResults { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Todo List MVP - Integration Test</h1>
+    <div id="testResults">
+        <h3>Test Results:</h3>
+        <ul id="testList"></ul>
+    </div>
+
+    <script type="module">
+        // Import core modules to test
+        import { getTaskManager } from './js/modules/taskManager.js';
+        import { getStateManager } from './js/modules/stateManager.js';
+        import { getStorageService } from './js/modules/storage.js';
+        import { validateTaskTitle } from './js/utils/validation.js';
+        import { formatRelativeTime } from './js/utils/dateUtils.js';
+
+        const testList = document.getElementById('testList');
+
+        function addTestResult(name, success, message = '') {
+            const li = document.createElement('li');
+            li.className = success ? 'success' : 'error';
+            li.innerHTML = `<strong>${name}:</strong> ${success ? '✅ PASS' : '❌ FAIL'} ${message}`;
+            testList.appendChild(li);
+        }
+
+        // Run tests
+        async function runTests() {
+            console.log('Starting integration tests...');
+
+            // Test 1: Module imports
+            try {
+                const taskManager = getTaskManager();
+                const stateManager = getStateManager();
+                const storageService = getStorageService();
+                addTestResult('Module Imports', true, 'All core modules imported successfully');
+            } catch (error) {
+                addTestResult('Module Imports', false, error.message);
+                return; // Stop if imports fail
+            }
+
+            // Test 2: State Manager
+            try {
+                const stateManager = getStateManager();
+                const initialState = stateManager.getState();
+                addTestResult('State Manager', !!initialState.tasks, 'State manager initialized with tasks array');
+            } catch (error) {
+                addTestResult('State Manager', false, error.message);
+            }
+
+            // Test 3: Task Manager - Wait for initialization
+            try {
+                const taskManager = getTaskManager();
+                
+                // Wait for task manager to be ready
+                let retries = 0;
+                while (!taskManager.isReady() && retries < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    retries++;
+                }
+                
+                if (taskManager.isReady()) {
+                    addTestResult('Task Manager', true, 'Task manager is ready');
+                } else {
+                    addTestResult('Task Manager', false, 'Task manager failed to initialize within timeout');
+                }
+            } catch (error) {
+                addTestResult('Task Manager', false, error.message);
+            }
+
+            // Test 4: Storage Service
+            try {
+                const storageService = getStorageService();
+                const storageInfo = storageService.getStorageInfo();
+                addTestResult('Storage Service', storageInfo.isAvailable !== false, 'Storage service available');
+            } catch (error) {
+                addTestResult('Storage Service', false, error.message);
+            }
+
+            // Test 5: Validation utilities
+            try {
+                const validation = validateTaskTitle('Test task');
+                addTestResult('Validation Utils', validation.isValid, 'Task validation working');
+            } catch (error) {
+                addTestResult('Validation Utils', false, error.message);
+            }
+
+            // Test 6: Date utilities
+            try {
+                const formatted = formatRelativeTime(new Date());
+                addTestResult('Date Utils', !!formatted, 'Date formatting working');
+            } catch (error) {
+                addTestResult('Date Utils', false, error.message);
+            }
+
+            // Test 7: Create a test task
+            try {
+                const taskManager = getTaskManager();
+                if (taskManager.isReady()) {
+                    const task = await taskManager.createTask({
+                        title: 'Integration test task',
+                        priority: 'medium'
+                    });
+                    addTestResult('Task Creation', !!task.id, `Created task with ID: ${task.id}`);
+                    
+                    // Test 8: Get task statistics
+                    const stats = taskManager.getTaskStatistics();
+                    addTestResult('Task Statistics', stats.total > 0, `Total tasks: ${stats.total}`);
+                } else {
+                    addTestResult('Task Creation', false, 'Task manager not ready');
+                }
+            } catch (error) {
+                addTestResult('Task Creation', false, error.message);
+            }
+
+            console.log('Integration tests completed');
+        }
+
+        // Run tests when page loads
+        window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

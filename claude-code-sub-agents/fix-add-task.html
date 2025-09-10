@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Add Task Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .form { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 4px; }
+        .task-list { margin: 20px 0; }
+        .task-item { padding: 10px; border: 1px solid #eee; margin: 5px 0; border-radius: 4px; }
+        .task-item.completed { text-decoration: line-through; opacity: 0.6; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .error { background: #ffebee; border-left: 4px solid #f44336; }
+        .success { background: #e8f5e8; border-left: 4px solid #4caf50; }
+        input, select, button { margin: 5px; padding: 8px; }
+        #output { max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>Add Task Functionality Test & Fix</h1>
+    
+    <div class="form">
+        <h3>Add New Task</h3>
+        <input type="text" id="task-title" placeholder="Enter task title" value="Test task">
+        <select id="task-priority">
+            <option value="medium">Medium Priority</option>
+            <option value="low">Low Priority</option>
+            <option value="high">High Priority</option>
+        </select>
+        <button id="add-task-btn">Add Task</button>
+        <button id="clear-tasks-btn">Clear All Tasks</button>
+    </div>
+    
+    <div class="task-list">
+        <h3>Tasks (<span id="task-count">0</span>)</h3>
+        <div id="task-container">
+            <p id="empty-message">No tasks yet. Add one above!</p>
+        </div>
+    </div>
+    
+    <div class="log">
+        <h3>Debug Output</h3>
+        <div id="output"></div>
+        <button id="clear-logs">Clear Logs</button>
+    </div>
+
+    <script type="module">
+        let taskManager, stateManager, taskList;
+        
+        const output = document.getElementById('output');
+        const taskContainer = document.getElementById('task-container');
+        const taskCount = document.getElementById('task-count');
+        const emptyMessage = document.getElementById('empty-message');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function clearLogs() {
+            output.innerHTML = '';
+        }
+        
+        function updateTaskDisplay() {
+            const tasks = stateManager.getAllTasks();
+            taskCount.textContent = tasks.length;
+            
+            if (tasks.length === 0) {
+                taskContainer.innerHTML = '<p id="empty-message">No tasks yet. Add one above!</p>';
+                return;
+            }
+            
+            taskContainer.innerHTML = '';
+            tasks.forEach(task => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskDiv.innerHTML = `
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                           onchange="toggleTask('${task.id}')" />
+                    <span>${task.title}</span>
+                    <em>(${task.priority})</em>
+                    <button onclick="deleteTask('${task.id}')" style="margin-left: 10px;">Delete</button>
+                `;
+                taskContainer.appendChild(taskDiv);
+            });
+        }
+        
+        window.toggleTask = async function(taskId) {
+            try {
+                await taskManager.toggleTaskComplete(taskId);
+                updateTaskDisplay();
+                log(`✅ Task ${taskId} toggled`, 'success');
+            } catch (error) {
+                log(`❌ Error toggling task: ${error.message}`, 'error');
+            }
+        };
+        
+        window.deleteTask = async function(taskId) {
+            try {
+                await taskManager.deleteTask(taskId);
+                updateTaskDisplay();
+                log(`✅ Task ${taskId} deleted`, 'success');
+            } catch (error) {
+                log(`❌ Error deleting task: ${error.message}`, 'error');
+            }
+        };
+        
+        async function addTask() {
+            try {
+                const title = document.getElementById('task-title').value.trim();
+                const priority = document.getElementById('task-priority').value;
+                
+                if (!title) {
+                    log('❌ Task title cannot be empty', 'error');
+                    return;
+                }
+                
+                log(`🔄 Adding task: "${title}" with priority: ${priority}`, 'info');
+                
+                const task = await taskManager.createTask({
+                    title: title,
+                    priority: priority
+                });
+                
+                log(`✅ Task created: ${task.id}`, 'success');
+                
+                // Clear form
+                document.getElementById('task-title').value = '';
+                
+                // Update display
+                updateTaskDisplay();
+                
+            } catch (error) {
+                log(`❌ Error adding task: ${error.message}`, 'error');
+                console.error('Add task error:', error);
+            }
+        }
+        
+        async function clearAllTasks() {
+            try {
+                const allTasks = stateManager.getAllTasks();
+                for (const task of allTasks) {
+                    await taskManager.deleteTask(task.id);
+                }
+                updateTaskDisplay();
+                log(`✅ All tasks cleared`, 'success');
+            } catch (error) {
+                log(`❌ Error clearing tasks: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize the application
+        async function init() {
+            try {
+                log('🔄 Initializing modules...', 'info');
+                
+                // Import modules
+                const { getTaskManager } = await import('./js/modules/taskManager.js');
+                const { getStateManager } = await import('./js/modules/stateManager.js');
+                const { TaskList } = await import('./js/components/TaskList.js');
+                
+                taskManager = getTaskManager();
+                stateManager = getStateManager();
+                
+                log('✅ Modules imported successfully', 'success');
+                
+                // Wait for task manager to be ready
+                let attempts = 0;
+                while (!taskManager.isReady() && attempts < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (!taskManager.isReady()) {
+                    throw new Error('TaskManager failed to initialize');
+                }
+                
+                log('✅ TaskManager is ready', 'success');
+                
+                // Subscribe to state changes for real-time updates
+                stateManager.subscribe((newState, prevState, source) => {
+                    if (newState.tasks !== prevState.tasks) {
+                        log(`📊 State changed (${source}): ${newState.tasks.length} tasks`, 'info');
+                        updateTaskDisplay();
+                    }
+                });
+                
+                // Set up event listeners
+                document.getElementById('add-task-btn').addEventListener('click', addTask);
+                document.getElementById('clear-tasks-btn').addEventListener('click', clearAllTasks);
+                document.getElementById('clear-logs').addEventListener('click', clearLogs);
+                
+                // Handle Enter key in task input
+                document.getElementById('task-title').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        addTask();
+                    }
+                });
+                
+                // Initial display update
+                updateTaskDisplay();
+                
+                log('✅ Application initialized successfully', 'success');
+                
+            } catch (error) {
+                log(`❌ Initialization error: ${error.message}`, 'error');
+                console.error('Initialization error:', error);
+            }
+        }
+        
+        // Global error handlers
+        window.addEventListener('error', (event) => {
+            log(`❌ Global error: ${event.error?.message || event.message}`, 'error');
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            log(`❌ Unhandled promise rejection: ${event.reason?.message || event.reason}`, 'error');
+        });
+        
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
