@@ -33,7 +33,7 @@ lerna-debug.log*
 .cache/
 
 # Node.js (Frontend project)
-node_modules/
+**node_modules/
 .npm
 .eslintcache
 .next/
