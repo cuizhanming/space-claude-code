@@ -1,103 +1,162 @@
-import Image from "next/image";
+'use client';
+
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import useSWR from 'swr';
+import { fetchCPIData, fetchUnemploymentData, fetch10YearTreasuryData, fetch3MonthTreasuryData, ChartDataPoint } from '@/lib/fred-api';
+
+interface ChartCardProps {
+  title: string;
+  data: ChartDataPoint[];
+  dataKey: string;
+  xAxisKey: string;
+  color?: string;
+  loading?: boolean;
+  error?: string;
+}
+
+function ChartCard({ title, data, dataKey, xAxisKey, color = "#8884d8", loading, error }: ChartCardProps) {
+  return (
+    <div className="bg-gray-200 rounded-lg p-4 w-full max-w-[512px] h-[300px]">
+      <h3 className="font-bold text-xl mb-3 text-black leading-tight">{title}</h3>
+      <div className="h-[240px]">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-gray-600">Loading...</div>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-red-600">Error loading data</div>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey={xAxisKey} />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Sidebar() {
+  const menuItems = [
+    { name: 'Key Indicators', icon: '📈', active: true },
+    { name: 'Inflation', icon: '📊', active: false },
+    { name: 'Employment', icon: '👥', active: false },
+    { name: 'Interest Rates', icon: '📈', active: false },
+    { name: 'Economic Growth', icon: '📈', active: false },
+    { name: 'Exchange Rates', icon: '🏠', active: false },
+    { name: 'Housing', icon: '🏠', active: false },
+    { name: 'Consumer Spending', icon: '🛒', active: false },
+  ];
+
+  return (
+    <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-screen">
+      <div className="p-6 border-b border-gray-200">
+        <h1 className="text-xl font-bold text-gray-900">FRED Indicators</h1>
+        <p className="text-sm text-gray-600 mt-1">Economic Data Dashboard</p>
+      </div>
+      
+      <nav className="flex-1 p-4">
+        <ul className="space-y-2">
+          {menuItems.map((item, index) => (
+            <li key={index}>
+              <a
+                href="#"
+                className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  item.active
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <span className="mr-3">{item.icon}</span>
+                {item.name}
+                <span className="ml-auto">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      
+      <div className="p-4 border-t border-gray-200">
+        <p className="text-xs text-gray-500">
+          Data provided by Federal Reserve Economic Data (FRED)
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { data: cpiData, error: cpiError, isLoading: cpiLoading } = useSWR('cpi-data', fetchCPIData);
+  const { data: unemploymentData, error: unemploymentError, isLoading: unemploymentLoading } = useSWR('unemployment-data', fetchUnemploymentData);
+  const { data: treasury10YearData, error: treasury10YearError, isLoading: treasury10YearLoading } = useSWR('treasury-10year-data', fetch10YearTreasuryData);
+  const { data: treasury3MonthData, error: treasury3MonthError, isLoading: treasury3MonthLoading } = useSWR('treasury-3month-data', fetch3MonthTreasuryData);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      <Sidebar />
+      
+      <div className="flex-1 overflow-auto">
+        <div className="p-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Economic Indicators Dashboard</h1>
+            <p className="text-gray-600">Real-time economic data from the Federal Reserve Economic Data (FRED) system</p>
+          </div>
+          
+          <div className="bg-gray-300/60 rounded-xl p-6 backdrop-blur-sm">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <ChartCard
+                title="CPI - last five years"
+                data={cpiData || []}
+                dataKey="value"
+                xAxisKey="displayDate"
+                color="#3b82f6"
+                loading={cpiLoading}
+                error={cpiError?.message}
+              />
+              <ChartCard
+                title="Infra-Annual Labor Statistics: Unemployment Rate Total"
+                data={unemploymentData || []}
+                dataKey="value"
+                xAxisKey="displayDate"
+                color="#ef4444"
+                loading={unemploymentLoading}
+                error={unemploymentError?.message}
+              />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ChartCard
+                title="Interest Rates: Long-Term Government Bond Yields: 10-Year"
+                data={treasury10YearData || []}
+                dataKey="value"
+                xAxisKey="displayDate"
+                color="#10b981"
+                loading={treasury10YearLoading}
+                error={treasury10YearError?.message}
+              />
+              <ChartCard
+                title="Interest Rates: 3-Month or 90-Day Rates and Yields"
+                data={treasury3MonthData || []}
+                dataKey="value"
+                xAxisKey="displayDate"
+                color="#f59e0b"
+                loading={treasury3MonthLoading}
+                error={treasury3MonthError?.message}
+              />
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }
